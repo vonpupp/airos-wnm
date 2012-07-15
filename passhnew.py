@@ -6,13 +6,14 @@ import sys
 import pxssh
 import getpass
 import ssh_session
+import os
 #import libssh2
 
 def main(args):
     url = args.url
     user, host = url.split('@', 1)
 
-    cfg_file = 'ssh.cfg'
+    cfg_file = os.environ['HOME'] + '/.airos-wnm/config'
     cfg = ConfigParser()
     cfg.read(cfg_file)
     passwd = cfg.get(user, host)
