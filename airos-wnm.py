@@ -10,13 +10,17 @@ import os
 #import libssh2
 
 def main(args):
-    url = args.url
-    user, host = url.split('@', 1)
+    #url = args.url
+    #user, host = url.split('@', 1)
 
-    cfg_file = os.environ['HOME'] + '/.airos-wnm/config'
+    #cfg_file = os.environ['HOME'] + '/.airos-wnm/config'
+    cfg_file = os.path.expanduser('~/.airos-wnm/config')
     cfg = ConfigParser()
     cfg.read(cfg_file)
-    passwd = cfg.get(user, host)
+    user = cfg.get("config", "user")
+    host = cfg.get("config", "host")
+    passwd = cfg.get("config", "pass")
+    #passwd = cfg.get(user, host)
 
     #child = pexpect.spawn('ssh {0}'.format(url))
     #child.expect('password:')
@@ -89,6 +93,6 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run ssh through pexpect')
-    parser.add_argument('url')
+    #parser.add_argument('url')
     args = parser.parse_args()
     main(args)
