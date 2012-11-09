@@ -7,6 +7,7 @@ import pxssh
 import getpass
 import ssh_session
 from collections import namedtuple
+from time import sleep
 
 import model.wnmmodel as wnm
 #import libssh2
@@ -72,8 +73,8 @@ def main(args):
 
     cli = WNMCLIModel()
     if cli.wnm.loadconfig() == -1:
-        print('please fill the file properties %s' % configfilename)
-        print('quiting...')
+        print('Please fill the file properties %s' % configfilename)
+        print('Quiting...')
         exit(0)
     else:
         if not args.connect:
@@ -81,14 +82,27 @@ def main(args):
             cli.pretyprintnetworks()
             exit(0)
         else:
-            if cli.wnm.networkexists(args.connect) != 1:
-                print("file / network %s doesn't seems to exists on the repo" %
-                      configfilename)
-                print('quiting...')
+            if cli.wnm.networkexists(args.connect) == None:
+                print("File / network '%s' doesn't seems to exists on the repo" %
+                      args.connect)
+                print('Quiting...')
                 exit(0)
             else:
-                cli.wnm.connectnetwork(args.connect)
-                print('connecting to %s' % args.connect)
+                print("Creating temporary script to '%s'..." % wnm.tmpscriptfilename)
+                cli.wnm.composescript(args.connect, wnm.tmpscriptfilename)
+                print("Uploading '%s' script to the device..." % wnm.tmpscriptfilename)
+                s = ssh_session.ssh_session(cli.wnm.user, cli.wnm.host, cli.wnm.passwd)
+                s.scp(wnm.tmpscriptfilename, wnm.tmpscriptfilename)
+                cli.wnm.printsessionout()
+                #print("Executing '%s' remote script on the device..." % wnm.tmpscriptfilename)
+                print("Connecting to '%s'..." % args.connect)
+                s = ssh_session.ssh_session(cli.wnm.user, cli.wnm.host, cli.wnm.passwd)
+                s.ssh('sh ' + wnm.tmpscriptfilename)
+                cli.wnm.printsessionout()
+                sleep(5)
+                print("Connected to '%s'... [most probably :p]" % args.connect)
+                
+                #cli.wnm.networkconnect(args.connect)
 
     #filename = args.filename
     #varsf = repo + "/" + filename + ".vars"

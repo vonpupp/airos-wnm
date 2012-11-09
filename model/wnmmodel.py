@@ -3,8 +3,11 @@
 from ConfigParser import ConfigParser
 import os
 import codecs
+import ssh_session
 
 configfilename = '~/.airos-wnm/config'
+scripttplfilename = './lib/connect.sh'
+tmpscriptfilename = 'connect.sh'
 
 class NetworkModel:
     """ The Network model abstraction
@@ -105,18 +108,54 @@ class WNMModel:
         return result
     
     def networkexists(self, network):
-        """ Returns 1 if network exists (with or without .vars)
+        """ Returns the full network path if network exists (with or without .vars),
+            None otherwise
         """
         if not ".vars" in network:
             net = network + ".vars"
         net = self.repo + "/" + net
         if os.path.isfile(net):
-            return 1
+            return net
         else:
-            return -1
+            return None
     
-    def connect(self, network):
+    #def networkexists(self, network):
+    #    """ Returns 1 if network exists (with or without .vars)
+    #    """
+    #    if not ".vars" in network:
+    #        net = network + ".vars"
+    #    net = self.networkpath(net)
+    #    if os.path.isfile(net):
+    #        return 1
+    #    else:
+    #        return -1
+    
+    def composescript(self, network, script):
+        outf = open(script, 'w')
+        inscript = open(scripttplfilename, 'r')
+        net = self.networkexists(network)
+        innetwork = open(net, 'r')
+        for line in innetwork:
+            outf.write(line)
+        for line in inscript:
+            outf.write(line)
+        outf.close()
+        
+    def printsessionout(self):
+        outf = open('./ssh.out', 'r')
+        for line in outf:
+            print(line)
+        outf.close()
+    
+    def networkconnect(self, network):
+        self.composescript(network, 'connect.sh')
         s = ssh_session.ssh_session(self.user, self.host, self.passwd)
-        s.scp("wep-connect.sh", "wep-connect.sh")
+        s.scp("connect.sh", "connect.sh")
+        self.printsessionout()
         s = ssh_session.ssh_session(self.user, self.host, self.passwd)
-        s.ssh("./wep-connect.sh")
+        s.ssh("pwd")
+        self.printsessionout()
+        s = ssh_session.ssh_session(self.user, self.host, self.passwd)
+        s.ssh("sh connect.sh")
+        #s.ssh("./connect.sh")
+        self.printsessionout()
