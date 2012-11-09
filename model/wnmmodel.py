@@ -6,7 +6,7 @@ __copyright__ = "(C) 2012 Albert De La Fuente. GNU GPL 3."
 from ConfigParser import ConfigParser
 import os
 import codecs
-import ssh_session
+import lib.ssh_session as sshlib
 
 configfilename = '~/.airos-wnm/config'
 scripttplfilename = './lib/connect.sh'
@@ -152,13 +152,13 @@ class WNMModel:
     
     def networkconnect(self, network):
         self.composescript(network, 'connect.sh')
-        s = ssh_session.ssh_session(self.user, self.host, self.passwd)
+        s = sshlib.ssh_session(self.user, self.host, self.passwd)
         s.scp("connect.sh", "connect.sh")
         self.printsessionout()
-        s = ssh_session.ssh_session(self.user, self.host, self.passwd)
+        s = sshlib.ssh_session(self.user, self.host, self.passwd)
         s.ssh("pwd")
         self.printsessionout()
-        s = ssh_session.ssh_session(self.user, self.host, self.passwd)
+        s = sshlib.ssh_session(self.user, self.host, self.passwd)
         s.ssh("sh connect.sh")
         #s.ssh("./connect.sh")
         self.printsessionout()
