@@ -15,6 +15,7 @@ class NetworkModel:
     essid = ''
     channel = ''
     key = ''
+    filename = ''
     varsfile = ''
     
     def __init__(self):#, bssid, essid, channel):
@@ -25,8 +26,8 @@ class NetworkModel:
         
     def fetchvariable(self, variable):
         result = None
-        if self.varsfile:
-            f = codecs.open(self.varsfile, encoding='utf-8', mode='r')
+        if self.filename:
+            f = codecs.open(self.filename, encoding='utf-8', mode='r')
             for line in f:
                 if '=' in line:
                     fvariable = line.split('=')[0]
@@ -88,7 +89,8 @@ class WNMModel:
                 if filename.endswith('.vars'):
                     result += 1
                     network = NetworkModel()
-                    network.varsfile = os.path.join(dirname, filename)
+                    network.filename = os.path.join(dirname, filename)
+                    network.varsfile = filename
                     network.bssid = network.fetchvariable('BSSID')
                     network.essid = network.fetchvariable('ESSID')
                     network.channel = network.fetchvariable('CH')
@@ -102,5 +104,19 @@ class WNMModel:
                     
         return result
     
-    def connect():
-        pass
+    def networkexists(self, network):
+        """ Returns 1 if network exists (with or without .vars)
+        """
+        if not ".vars" in network:
+            net = network + ".vars"
+        net = self.repo + "/" + net
+        if os.path.isfile(net):
+            return 1
+        else:
+            return -1
+    
+    def connect(self, network):
+        s = ssh_session.ssh_session(self.user, self.host, self.passwd)
+        s.scp("wep-connect.sh", "wep-connect.sh")
+        s = ssh_session.ssh_session(self.user, self.host, self.passwd)
+        s.ssh("./wep-connect.sh")

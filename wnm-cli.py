@@ -52,19 +52,20 @@ class WNMCLIModel:
         self.wnm = wnm.WNMModel()
 
     def pretyprintnetworks(self):
-        Row = namedtuple('Row',['BSSID', 'CHANNEL', 'ESSID', 'KEY'])
+        Row = namedtuple('Row',['FILE', 'ESSID', 'CHANNEL', 'BSSID', 'KEY'])
         data = []
         for item in sorted(self.wnm.networks):
             network = self.wnm.networks[item]
-            data = data + [Row(network.bssid, network.channel, network.essid, network.key)]
+            data = data + [Row(network.varsfile, network.essid, network.channel,
+                               network.bssid, network.key)]
         pprinttable(data)
 
     def printnetworks(self):
-        print("%s %s %s %s" % ("BSSID", "CHANNEL", "ESSID", "KEY"))
+        print("%s %s %s %s" % ("ESSID", "CHANNEL", "BSSID", "KEY"))
         for item in sorted(self.wnm.networks):
             network = self.wnm.networks[item]
-            print("%s %s %s %s" % (network.bssid, network.channel,
-                  network.essid, network.key))
+            print("%s %s %s %s" % (network.essid, network.channel,
+                  network.bssid, network.key))
 
 def main(args):
     #config_file = os.environ['HOME'] + '/.airos-wnm/config'
@@ -78,14 +79,17 @@ def main(args):
         if not args.connect:
             cli.wnm.loadnetworks()
             cli.pretyprintnetworks()
-            print('I will list the networks')
             exit(0)
         else:
-            print('connecting to %s' % args.connect)
-            s = ssh_session.ssh_session(user, host, passwd)
-            s.scp("wep-connect.sh", "wep-connect.sh")
-            s = ssh_session.ssh_session(user, host, passwd)
-            s.ssh("./wep-connect.sh")
+            if cli.wnm.networkexists(args.connect) != 1:
+                print("file / network %s doesn't seems to exists on the repo" %
+                      configfilename)
+                print('quiting...')
+                exit(0)
+            else:
+                cli.wnm.connectnetwork(args.connect)
+                print('connecting to %s' % args.connect)
+
     #filename = args.filename
     #varsf = repo + "/" + filename + ".vars"
 
