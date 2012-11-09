@@ -54,7 +54,7 @@ Output example:
     wireless2.vars | "Wireless AP 02"       | 11      | xx:yy:zz:xx:yy:zz | 2222
     wireless3.vars | "Wireless AP 03"       | 6       | xx:yy:zz:xx:yy:zz | 3333
 
-### Connect to a wireless2 network
+### Connect to 'wireless2' network
 
 Input example:
 
