@@ -12,6 +12,7 @@ Networks are stored in a single directory (repository), each network is
 represented as a very simple (ba)sh file containing some variables:
 
 Example: (filename: /home/albert/wireless-repo/wireless1.vars)
+
     #!/bin/bash                                                                                                                                                                                                
     BSSID=xx:yy:zz:xx:yy:zz     # MAC address
     ESSID="Wireless AP 01"      # Network name
@@ -23,6 +24,7 @@ Config file
 The config file is stored in: ~/.airos-wnm/config.
 
 Example: (filename: ~/.airos-wnm/config)
+
     [config]
     user = root
     host = 192.168.0.1
